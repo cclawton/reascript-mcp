@@ -66,7 +66,7 @@ write_reascript_file("list_tracks", {"output_path": "tracks.json"})
 
 ## Next build slices
 
-1. Add a runner that writes generated Lua files to disk.
+1. Add a Reaper CLI smoke harness that runs against a disposable config/project and exits cleanly.
 2. Add more project-control scripts: create tracks, rename tracks, import MIDI, set tempo map, add markers/regions.
 3. Add structured state readback scripts for items, takes, MIDI notes, markers, routing, and FX chains.
 4. Connect this to the common musical data model so music21/mido/ReaScript reference the same musical locations.
