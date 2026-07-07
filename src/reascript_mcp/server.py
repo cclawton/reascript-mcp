@@ -12,6 +12,7 @@ except ImportError:  # Allows pure unit tests without the MCP package installed.
 
 from .tools.generate_reascript import generate_reascript
 from .tools.parse_rpp_project import parse_rpp_project
+from .tools.write_reascript_file import write_reascript_file
 
 _tool_registry: dict[str, dict[str, Any]] = {
     "parse_rpp_project": {
@@ -21,6 +22,10 @@ _tool_registry: dict[str, dict[str, Any]] = {
     "generate_reascript": {
         "description": "Generate Lua ReaScripts for supported project-control actions.",
         "fn": generate_reascript,
+    },
+    "write_reascript_file": {
+        "description": "Generate and write a Lua ReaScript file for loading/running in Reaper.",
+        "fn": write_reascript_file,
     },
 }
 
@@ -46,6 +51,20 @@ if mcp is not None:
         if not isinstance(params, dict):
             raise ValueError("params_json must decode to an object")
         return json.dumps(generate_reascript(action, params), indent=2)
+
+    @mcp.tool()
+    def write_reascript_file_tool(
+        action: str,
+        params_json: str = "{}",
+        output_dir: str = "generated_reascripts",
+        filename: str | None = None,
+    ) -> str:
+        """Generate a supported Lua ReaScript and write it to disk."""
+
+        params = json.loads(params_json)
+        if not isinstance(params, dict):
+            raise ValueError("params_json must decode to an object")
+        return json.dumps(write_reascript_file(action, params, output_dir, filename), indent=2)
 
 
 def main() -> None:

@@ -10,6 +10,7 @@ This is the first working slice of the Reaper layer for the Asian Sentry agentic
 |------|-------------|
 | `parse_rpp_project` | Parse a `.rpp` Reaper project file into compact JSON: tempo, time signature, track names, item counts, and media source types. Works without Reaper installed. |
 | `generate_reascript` | Generate Lua ReaScripts for supported actions. Initial actions: `list_tracks` and `create_midi_item`. |
+| `write_reascript_file` | Generate a supported Lua ReaScript and write it to disk for loading/running in REAPER. |
 
 ## Install
 
@@ -26,7 +27,7 @@ pip install -e '.[dev]'
 python -m pytest -q
 ```
 
-Current status: 9 tests passing.
+Current status: 12 tests passing.
 
 ## Use as MCP server
 
@@ -58,6 +59,9 @@ print(parse_rpp_project("song.rpp"))
 
 script = generate_reascript("list_tracks", {"output_path": "tracks.json"})
 print(script["script"])
+
+from reascript_mcp.tools.write_reascript_file import write_reascript_file
+write_reascript_file("list_tracks", {"output_path": "tracks.json"})
 ```
 
 ## Next build slices
