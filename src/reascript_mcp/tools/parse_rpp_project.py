@@ -12,7 +12,7 @@ _ITEM_START_RE = re.compile(r"^\s*<ITEM\b")
 _SOURCE_RE = re.compile(r"^\s*<SOURCE\s+(\S+)")
 _NAME_RE = re.compile(r'^\s*NAME\s+"(.*)"')
 _TEMPO_RE = re.compile(r"^\s*TEMPO\s+([0-9.]+)\s+(\d+)\s+(\d+)")
-_VST_RE = re.compile(r'^\s*<VST\s+"(.+?)"\s+"(.+?)"')
+_VST_RE = re.compile(r'^\s*<VST\s+"(.+?)"\s+("[^"]+"|\S+)')
 _PRESETNAME_RE = re.compile(r'^\s*PRESETNAME\s+"?(.*?)"?\s*$')
 
 
@@ -101,7 +101,8 @@ def parse_rpp_project(project_path: str) -> dict[str, Any]:
         if inside_fxchain:
             vst_match = _VST_RE.match(line)
             if vst_match:
-                fx_name, fx_file = vst_match.groups()
+                fx_name, fx_file_raw = vst_match.groups()
+                fx_file = fx_file_raw.strip('"')
                 current_track["fx"].append({
                     "name": fx_name,
                     "file": fx_file,
