@@ -68,6 +68,21 @@ def test_generate_read_project_state_script_includes_tracks_fx_items_and_markers
     assert "project state" in result["summary"]
 
 
+def test_generate_create_track_script_validates_name() -> None:
+    result = generate_reascript("create_track", {"name": "04 GUITAR - Helix", "index": 3})
+
+    assert result["action"] == "create_track"
+    assert result["script_path"].endswith("create_track.lua")
+    assert "reaper.InsertTrackAtIndex(3, true)" in result["script"]
+    assert "P_NAME" in result["script"]
+    assert "04 GUITAR - Helix" in result["script"]
+
+
+def test_generate_create_track_rejects_empty_name() -> None:
+    with pytest.raises(ValueError, match="name"):
+        generate_reascript("create_track", {"name": ""})
+
+
 def test_generate_unknown_action_rejected() -> None:
     with pytest.raises(ValueError, match="Unsupported"):
         generate_reascript("delete_everything", {})

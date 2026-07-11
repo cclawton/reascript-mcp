@@ -9,7 +9,7 @@ This is the first working slice of the Reaper layer for the Asian Sentry agentic
 | Tool | What it does |
 |------|-------------|
 | `parse_rpp_project` | Parse a `.rpp` Reaper project file into compact JSON: tempo, time signature, track names, item counts, and media source types. Works without Reaper installed. |
-| `generate_reascript` | Generate Lua ReaScripts for supported actions. Current actions: `list_tracks`, `read_project_state`, and `create_midi_item`. |
+| `generate_reascript` | Generate Lua ReaScripts for supported actions. Current actions: `list_tracks`, `read_project_state`, `create_track`, and `create_midi_item`. |
 | `write_reascript_file` | Generate a supported Lua ReaScript and write it to disk for loading/running in REAPER. |
 
 ## Install

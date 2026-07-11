@@ -15,7 +15,7 @@ Status: active, remote-capable workstream. Audio device is not required for most
 ## Next: can progress remotely
 
 - [ ] Add Reaper CLI smoke harness that runs against a disposable config/project and exits cleanly
-- [ ] Add generated script action: `create_track`
+- [x] Add generated script action: `create_track`
 - [ ] Add generated script action: `rename_track`
 - [ ] Add generated script action: `add_marker`
 - [ ] Add generated script action: `add_region`
