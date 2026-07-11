@@ -101,7 +101,8 @@ def test_generate_import_midi_file_script_validates_params(tmp_path: Path) -> No
     assert result["script_path"].endswith("import_midi_file.lua")
     assert str(midi_path) in result["script"]
     assert "reaper.InsertMedia" in result["script"]
-    assert "MIDI_GetPPQPosFromProjQN" in result["script"]
+    assert "reaper.TimeMap_QNToTime" in result["script"]
+    assert "reaper.SetOnlyTrackSelected" in result["script"]
     assert "import MIDI file" in result["summary"]
 
 
@@ -114,7 +115,7 @@ def test_generate_import_midi_file_defaults_position_to_zero() -> None:
         },
     )
 
-    assert "MIDI_GetPPQPosFromProjQN" in result["script"]
+    assert "reaper.TimeMap_QNToTime" in result["script"]
     assert "import MIDI file" in result["summary"]
 
 

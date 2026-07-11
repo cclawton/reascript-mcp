@@ -106,32 +106,15 @@ local position_qn = {_lua_number(position_qn)}
 local track = reaper.GetTrack(0, track_index)
 if track == nil then error("Track index " .. tostring(track_index) .. " not found") end
 
--- Get a tempo playrate item so we can convert QN to PPQ
-local first_item = reaper.GetTrackMediaItem(track, 0)
-local take = nil
-if first_item then take = reaper.GetActiveTake(first_item) end
+-- Convert QN to time in seconds and set edit cursor
+local position_time = reaper.TimeMap_QNToTime(position_qn)
+reaper.SetEditCurPos(position_time, false, false)
 
--- If no existing take, create a temporary MIDI take to access PPQ conversion
-local temp_item = nil
-if take == nil then
-  temp_item = reaper.CreateNewMIDIItemInProj(track, position_qn, position_qn + 4, false)
-  take = reaper.GetActiveTake(temp_item)
-end
+-- Select the target track so InsertMedia places the item there
+reaper.SetOnlyTrackSelected(track)
 
-local position_ppq = reaper.MIDI_GetPPQPosFromProjQN(take, position_qn)
-
--- Clean up temp item if we created one
-if temp_item then
-  reaper.DeleteTrackMediaItem(track, temp_item)
-  take = nil
-end
-
--- Insert the MIDI file at the target position
--- InsertMedia returns the inserted media item
-local insert_mode = 0  -- 0 = place at cursor / specified position
-reaper.SetEditCurPos(reaper.MapProjectFromPPQ(0, 0, position_ppq), false, false)
-
-local retval, inserted_item = reaper.InsertMedia(midi_file_path, insert_mode)
+-- Insert the MIDI file at the edit cursor
+local retval, inserted_item = reaper.InsertMedia(midi_file_path, 0)
 
 if not retval then
   reaper.ShowConsoleMsg("Failed to import MIDI file: " .. midi_file_path .. "\\n")
