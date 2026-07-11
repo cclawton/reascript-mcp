@@ -20,7 +20,7 @@ Status: active, remote-capable workstream. Audio device is not required for most
 - [ ] Add generated script action: `add_marker`
 - [ ] Add generated script action: `add_region`
 - [ ] Add generated script action: `import_midi_file`
-- [ ] Add state readback script: list media items and takes
+- [x] Add state readback script: initial `read_project_state` for tempo, track names, FX chains, media items, and markers/regions
 - [ ] Add state readback script: list MIDI notes in selected/all MIDI items
 - [ ] Add state readback script: list markers and regions
 - [ ] Add state readback script: list routing and sends

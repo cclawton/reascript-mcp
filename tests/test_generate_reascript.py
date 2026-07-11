@@ -51,6 +51,23 @@ def test_generate_create_midi_item_rejects_invalid_pitch() -> None:
         )
 
 
+def test_generate_read_project_state_script_includes_tracks_fx_items_and_markers(tmp_path: Path) -> None:
+    out = tmp_path / "project_state.json"
+
+    result = generate_reascript("read_project_state", {"output_path": str(out)})
+
+    assert result["language"] == "lua"
+    assert result["action"] == "read_project_state"
+    assert result["script_path"].endswith("read_project_state.lua")
+    assert str(out) in result["script"]
+    assert "reaper.TrackFX_GetCount" in result["script"]
+    assert "reaper.TrackFX_GetFXName" in result["script"]
+    assert "reaper.CountTrackMediaItems" in result["script"]
+    assert "reaper.GetMediaItemInfo_Value" in result["script"]
+    assert "reaper.EnumProjectMarkers3" in result["script"]
+    assert "project state" in result["summary"]
+
+
 def test_generate_unknown_action_rejected() -> None:
     with pytest.raises(ValueError, match="Unsupported"):
         generate_reascript("delete_everything", {})
