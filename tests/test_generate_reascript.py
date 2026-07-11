@@ -85,6 +85,52 @@ def test_generate_create_track_rejects_empty_name() -> None:
         generate_reascript("create_track", {"name": ""})
 
 
+def test_generate_import_midi_file_script_validates_params(tmp_path: Path) -> None:
+    midi_path = tmp_path / "bassline.mid"
+
+    result = generate_reascript(
+        "import_midi_file",
+        {
+            "track_index": 2,
+            "midi_file_path": str(midi_path),
+            "position_qn": 0,
+        },
+    )
+
+    assert result["action"] == "import_midi_file"
+    assert result["script_path"].endswith("import_midi_file.lua")
+    assert str(midi_path) in result["script"]
+    assert "reaper.InsertMedia" in result["script"]
+    assert "MIDI_GetPPQPosFromProjQN" in result["script"]
+    assert "import MIDI file" in result["summary"]
+
+
+def test_generate_import_midi_file_defaults_position_to_zero() -> None:
+    result = generate_reascript(
+        "import_midi_file",
+        {
+            "track_index": 0,
+            "midi_file_path": "/tmp/test.mid",
+        },
+    )
+
+    assert "MIDI_GetPPQPosFromProjQN" in result["script"]
+    assert "import MIDI file" in result["summary"]
+
+
+def test_generate_import_midi_file_rejects_missing_path() -> None:
+    with pytest.raises(ValueError, match="midi_file_path"):
+        generate_reascript("import_midi_file", {"track_index": 0})
+
+
+def test_generate_import_midi_file_rejects_negative_track() -> None:
+    with pytest.raises(ValueError, match="track_index"):
+        generate_reascript(
+            "import_midi_file",
+            {"track_index": -1, "midi_file_path": "/tmp/test.mid"},
+        )
+
+
 def test_generate_unknown_action_rejected() -> None:
     with pytest.raises(ValueError, match="Unsupported"):
         generate_reascript("delete_everything", {})

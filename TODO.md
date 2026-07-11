@@ -36,7 +36,7 @@ Status: active, remote-capable workstream. Audio device is not required for most
 - [ ] Add generated script action: `rename_track`
 - [ ] Add generated script action: `add_marker`
 - [ ] Add generated script action: `add_region`
-- [ ] Add generated script action: `import_midi_file`
+- [x] Add generated script action: `import_midi_file`
 - [ ] Add generated script action: `set_track_fx` (load a plugin by name onto a track)
 - [ ] Add generated script action: `render_project` (trigger a render with configurable settings)
 
