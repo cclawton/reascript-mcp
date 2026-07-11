@@ -65,6 +65,8 @@ def test_generate_read_project_state_script_includes_tracks_fx_items_and_markers
     assert "reaper.CountTrackMediaItems" in result["script"]
     assert "reaper.GetMediaItemInfo_Value" in result["script"]
     assert "reaper.EnumProjectMarkers3" in result["script"]
+    assert 'local source_type = reaper.GetMediaSourceType(source, "")' in result["script"]
+    assert 'local ok, source_type = reaper.GetMediaSourceType(source, "")' not in result["script"]
     assert "project state" in result["summary"]
 
 

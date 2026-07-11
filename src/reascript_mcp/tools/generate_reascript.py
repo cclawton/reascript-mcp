@@ -108,11 +108,11 @@ end
 local function source_type_for_item(item)
   local take = reaper.GetActiveTake(item)
   if take == nil then return "UNKNOWN" end
+  if reaper.TakeIsMIDI(take) then return "MIDI" end
   local source = reaper.GetMediaItemTake_Source(take)
   if source == nil then return "UNKNOWN" end
-  local ok, source_type = reaper.GetMediaSourceType(source, "")
-  if ok and source_type ~= "" then return source_type end
-  if reaper.TakeIsMIDI(take) then return "MIDI" end
+  local source_type = reaper.GetMediaSourceType(source, "")
+  if source_type ~= nil and source_type ~= "" then return source_type end
   return "UNKNOWN"
 end
 
