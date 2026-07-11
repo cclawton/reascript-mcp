@@ -21,12 +21,39 @@ SIMPLE_RPP = """<REAPER_PROJECT 0.1 "7.0/macOS-arm64" 1750000000
   >
   <TRACK {22222222-2222-2222-2222-222222222222}
     NAME "Bass"
+    <FXCHAIN
+      BYPASS 0 0 0
+      <VST "VST3i: Analog Lab V (Arturia)" "Analog Lab V.vst3" 0 "" 123456789{ABCDEF} ""
+        PRESETNAME "Sampled Grand Piano"
+      >
+    >
     <ITEM
       POSITION 4
       LENGTH 2
       NAME "bass answer"
       <SOURCE WAVE
         FILE "bass.wav"
+      >
+    >
+  >
+>"""
+
+
+RPP_WITH_FX = """<REAPER_PROJECT 0.1 "7.0/macOS-arm64" 1750000000
+  TEMPO 120 4 4
+  <TRACK {11111111-1111-1111-1111-111111111111}
+    NAME "Drums"
+    <FXCHAIN
+      BYPASS 0 0 0
+      <VST "VST3i: EZdrummer 3 (Toontrack) (32 out)" "EZdrummer 3.vst3" 0 "" 724425751{ABCDEF} ""
+        PRESETNAME Basic
+      >
+    >
+    <ITEM
+      POSITION 0
+      LENGTH 16
+      <SOURCE MIDI
+        HASDATA 1 960 QN
       >
     >
   >
@@ -49,9 +76,39 @@ def test_parse_rpp_project_returns_project_summary(tmp_path: Path) -> None:
         "name": "Guitar DI",
         "item_count": 1,
         "media_types": ["MIDI"],
+        "fx": [],
     }
     assert result["tracks"][1]["media_types"] == ["WAVE"]
     assert "2 tracks" in result["summary"]
+
+
+def test_parse_rpp_project_extracts_fx_chain_and_preset(tmp_path: Path) -> None:
+    project = tmp_path / "with_fx.rpp"
+    project.write_text(RPP_WITH_FX)
+
+    result = parse_rpp_project(str(project))
+
+    track = result["tracks"][0]
+    assert len(track["fx"]) == 1
+    fx = track["fx"][0]
+    assert fx["name"] == "VST3i: EZdrummer 3 (Toontrack) (32 out)"
+    assert fx["file"] == "EZdrummer 3.vst3"
+    assert fx["preset"] == "Basic"
+
+
+def test_parse_rpp_project_extracts_fx_from_simple_fixture(tmp_path: Path) -> None:
+    project = tmp_path / "simple.rpp"
+    project.write_text(SIMPLE_RPP)
+
+    result = parse_rpp_project(str(project))
+
+    bass_track = result["tracks"][1]
+    assert len(bass_track["fx"]) == 1
+    fx = bass_track["fx"][0]
+    assert fx["name"] == "VST3i: Analog Lab V (Arturia)"
+    assert fx["file"] == "Analog Lab V.vst3"
+    assert fx["preset"] == "Sampled Grand Piano"
+    assert result["tracks"][0]["fx"] == []
 
 
 def test_parse_rpp_project_handles_unnamed_tracks(tmp_path: Path) -> None:

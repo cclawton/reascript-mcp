@@ -12,6 +12,8 @@ _ITEM_START_RE = re.compile(r"^\s*<ITEM\b")
 _SOURCE_RE = re.compile(r"^\s*<SOURCE\s+(\S+)")
 _NAME_RE = re.compile(r'^\s*NAME\s+"(.*)"')
 _TEMPO_RE = re.compile(r"^\s*TEMPO\s+([0-9.]+)\s+(\d+)\s+(\d+)")
+_VST_RE = re.compile(r'^\s*<VST\s+"(.+?)"\s+"(.+?)"')
+_PRESETNAME_RE = re.compile(r'^\s*PRESETNAME\s+"?(.*?)"?\s*$')
 
 
 def parse_rpp_project(project_path: str) -> dict[str, Any]:
@@ -37,6 +39,8 @@ def parse_rpp_project(project_path: str) -> dict[str, Any]:
     current_track: dict[str, Any] | None = None
     current_item_media_types: list[str] = []
     inside_item = False
+    inside_fxchain = False
+    fx_depth = 0
 
     for line in lines:
         if tempo is None:
@@ -52,9 +56,12 @@ def parse_rpp_project(project_path: str) -> dict[str, Any]:
                 "name": f"Track {len(tracks) + 1}",
                 "item_count": 0,
                 "media_types": [],
+                "fx": [],
             }
             tracks.append(current_track)
             inside_item = False
+            inside_fxchain = False
+            fx_depth = 0
             current_item_media_types = []
             continue
 
@@ -84,6 +91,38 @@ def parse_rpp_project(project_path: str) -> dict[str, Any]:
             if line.strip() == ">":
                 inside_item = False
                 current_item_media_types = []
+            continue
+
+        if "<FXCHAIN" in line:
+            inside_fxchain = True
+            fx_depth = 1
+            continue
+
+        if inside_fxchain:
+            vst_match = _VST_RE.match(line)
+            if vst_match:
+                fx_name, fx_file = vst_match.groups()
+                current_track["fx"].append({
+                    "name": fx_name,
+                    "file": fx_file,
+                    "preset": None,
+                })
+                fx_depth += 1
+                continue
+
+            preset_match = _PRESETNAME_RE.match(line)
+            if preset_match and current_track["fx"]:
+                current_track["fx"][-1]["preset"] = preset_match.group(1)
+                continue
+
+            if line.strip() == ">":
+                fx_depth -= 1
+                if fx_depth <= 0:
+                    inside_fxchain = False
+                continue
+
+            if line.strip().startswith("<") and "<FXCHAIN" not in line:
+                fx_depth += 1
 
     item_count = sum(track["item_count"] for track in tracks)
     summary = f"{path.name}: {len(tracks)} tracks, {item_count} media items"
